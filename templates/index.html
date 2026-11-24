@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent tutoring system</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        #chat-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            text-align: right;
+            color: blue;
+        }
+        .bot-message {
+            text-align: left;
+            color: rgb(5, 5, 5);
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 8px;
+        }
+        button {
+            width: 18%;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Intelligent tutoring system for linear equations.</h1>
+    <div id="chat-container">
+        <div id="messages"></div>
+    </div>
+    <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Write your question..." autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+    <div id="status"></div>
+
+    <!-- Incluir la librería marked.js -->
+    <!-- Puedes descargarla y servirla localmente o usar un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> 
+
+    <script>
+        let chatHistory = []; // Variable to store chat history
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value;
+            if (message.trim() === '') return;
+
+            const messagesDiv = document.getElementById('messages');
+            const statusDiv = document.getElementById('status');
+
+            // Muestra el mensaje del usuario en la interfaz
+            // Los mensajes del usuario no necesitan ser parseados como Markdown
+            messagesDiv.innerHTML += `<div class="user-message"><strong>Tú:</strong> ${message}</div>`;
+            userInput.value = '';
+            statusDiv.textContent = 'Writing...';
+
+            try {
+                // Envía el mensaje al servidor de Python con el historial de chat
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input: message,
+                        history: chatHistory // Enviar el historial actual
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Actualiza el historial de chat con la respuesta del servidor
+                chatHistory = data.history;
+
+                // === CAMBIO AQUÍ: Parsear la respuesta de la IA de Markdown a HTML ===
+                const botResponseHTML = marked.parse(data.response);
+                // ====================================================================
+
+                // Muestra la respuesta de la IA
+                messagesDiv.innerHTML += `<div class="bot-message"><strong>Juliana:</strong> ${botResponseHTML}</div>`;
+                statusDiv.textContent = '';
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.textContent = 'Error: Could not get the response.';
+            } finally {
+                // Desplázate hacia abajo para ver el mensaje más reciente
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        });
+    </script>
+
+</body>
+</html>
