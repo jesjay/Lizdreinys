@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Configuración de la API
 try:
-    api_key = os.environ.get("AIzaSyBX146tuD7aMq0J9xckX3weAlxEtRhHRnw")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("No se encontró la GEMINI_API_KEY en el entorno")
     genai.configure(api_key=api_key)
