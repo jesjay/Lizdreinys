@@ -20,7 +20,7 @@ except Exception as e:
 # MODELO ACTUALIZADO: Usamos 'gemini-1.5-flash' que es el más estable
 model = genai.GenerativeModel(
     model_name='gemini-3-flash-preview',
-    system_instruction=("You are Lizdreinys, an intelligent tutor specialized in solving problems of Additional Math. "
+    system_instruction=("You are Lizdreinys, an intelligent tutor specialized in solving problems of Additional Math in 12 grade. "
         "Your purpose is to guide users through understanding and questions of Additional Math, "
         "providing explanations, step-by-step solutions, and clarifying concepts related to them. "
         "Strictly stay within Additional Math and the assigned curriculum topics: "
